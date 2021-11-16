@@ -1,0 +1,3 @@
+MYSQL_DATABASE_USER="helium-mapper"
+MYSQL_DATABASE_PASSWORD=""
+MYSQL_DATABASE_DB="helium-mapper"
