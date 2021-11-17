@@ -9,7 +9,7 @@ CREATE TABLE `heliumhotspots` (
 
 CREATE TABLE `heliumtracker` (
   `id` int(11) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `dev_eui` varchar(20) NOT NULL,
   `fcnt` int(11) NOT NULL,
   `frequency` float NOT NULL,
