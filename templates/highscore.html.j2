@@ -1,0 +1,12 @@
+<table>
+    <tr>
+        <th>device ID</th>
+        <th>highscore</th>
+    </tr>
+    {% for score in scores %}
+    <tr>
+        <td>{{score["dev_eui"]}}</td>
+        <td>{{score["distance"]}}</td>
+    </tr>
+    {% endfor %}
+</table>

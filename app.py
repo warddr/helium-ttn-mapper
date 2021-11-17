@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 import geopy.distance
 from geojson import Feature, Point, FeatureCollection, LineString, MultiLineString
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.config.from_pyfile("app.cfg")
 
 mysql = MySQL(cursorclass=DictCursor)
@@ -50,6 +50,12 @@ def api_geojson():
   #return MultiLineString(linefeatures)
   return FeatureCollection(pointfeatures)
 
+@app.route("/highscore")
+def highscore():
+  cursor = mysql.get_db().cursor()
+  cursor.execute("SELECT dev_eui, max(distance) as distance FROM heliumtracker GROUP BY dev_eui ORDER BY distance;")
+  
+  return render_template('highscore.html.j2', scores = cursor.fetchall())
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)
