@@ -1,12 +1,13 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, jsonify
 from flaskext.mysql import MySQL
+from pymysql.cursors import DictCursor
 import geopy.distance
+from geojson import Feature, Point, FeatureCollection, LineString, MultiLineString
 
 app = Flask(__name__)
 app.config.from_pyfile("app.cfg")
 
-mysql = MySQL()
+mysql = MySQL(cursorclass=DictCursor)
 mysql.init_app(app)
 
 @app.route("/")
@@ -34,6 +35,21 @@ def api_helium():
       cursor3.execute(sql, val)
       mysql.get_db().commit()
   return "Done"
+
+@app.route("/api/geojson")
+def api_geojson():
+  pointfeatures = []
+  linefeatures = []
+  cursor = mysql.connect().cursor()
+  cursor.execute("SELECT * FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id;");
+  for points in cursor.fetchall():
+    mypoint = Point((points["longitude"], points["latitude"]))
+    pointfeatures.append(Feature(geometry=mypoint))
+    mypointGW = Point((float(points["heliumhotspots.longitude"]), float(points["heliumhotspots.latitude"])))
+    linefeatures.append([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
+  #return MultiLineString(linefeatures)
+  return FeatureCollection(pointfeatures)
+
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)
