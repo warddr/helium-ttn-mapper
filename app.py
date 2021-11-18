@@ -49,7 +49,6 @@ def api_geojson():
       lastfcnt = points["fcnt"]
     myline = LineString([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
     features.append(Feature(geometry=myline))
-  print(teller)
   return FeatureCollection(features)
 
 @app.route("/highscore")
