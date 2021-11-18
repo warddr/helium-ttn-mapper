@@ -19,7 +19,7 @@
       $.getJSON('api/geojson', function (geojson) {
         L.geoJson(geojson, {
           style: function(feature) {
-            if ('rssi' in feature.properties) { //only if we have RSSI property --> only on lines
+            if (feature.geometry.type == "LineString") {
               rssi = parseInt(feature.properties.rssi)
               if (rssi > -100) {return {color: "#FF0000", "opacity": 0.3}};
               if (rssi > -105) {return {color: "#FFA500", "opacity": 0.3}};
@@ -31,7 +31,8 @@
           },
 
           onEachFeature: function (feature, layer) {
-            //layer.bindPopup(feature.properties.rssi);
+            layer.bindPopup(feature.properties.rssi);
+            layer.openPopup();
           }
         }).addTo( mymap );
       });
