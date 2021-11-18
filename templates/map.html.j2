@@ -18,6 +18,16 @@
 
       $.getJSON('api/geojson', function (geojson) {
         L.geoJson(geojson, {
+          style: function(feature) {
+            rssi = parseInt(feature.properties.rssi)
+            if (rssi > -100) {return {color: "#FF0000"}};
+            if (rssi > -105) {return {color: "#FFA500"}};
+            if (rssi > -110) {return {color: "#FFFF00"}};
+            if (rssi > -115) {return {color: "#00FF00"}};
+            if (rssi > -120) {return {color: "#00FFFF"}};
+            return {color: "#0000FF"}
+            },
+
           onEachFeature: function (feature, layer) {
             //layer.bindPopup(feature.properties.name);
           }
