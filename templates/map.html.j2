@@ -19,17 +19,19 @@
       $.getJSON('api/geojson', function (geojson) {
         L.geoJson(geojson, {
           style: function(feature) {
-            rssi = parseInt(feature.properties.rssi)
-            if (rssi > -100) {return {color: "#FF0000"}};
-            if (rssi > -105) {return {color: "#FFA500"}};
-            if (rssi > -110) {return {color: "#FFFF00"}};
-            if (rssi > -115) {return {color: "#00FF00"}};
-            if (rssi > -120) {return {color: "#00FFFF"}};
-            return {color: "#0000FF"}
-            },
+            if ('rssi' in feature.properties) { //only if we have RSSI property --> only on lines
+              rssi = parseInt(feature.properties.rssi)
+              if (rssi > -100) {return {color: "#FF0000", "opacity": 0.3}};
+              if (rssi > -105) {return {color: "#FFA500", "opacity": 0.3}};
+              if (rssi > -110) {return {color: "#FFFF00", "opacity": 0.3}};
+              if (rssi > -115) {return {color: "#00FF00", "opacity": 0.3}};
+              if (rssi > -120) {return {color: "#00FFFF", "opacity": 0.3}};
+              return {color: "#0000FF", "opacity": 0.3};
+            }
+          },
 
           onEachFeature: function (feature, layer) {
-            //layer.bindPopup(feature.properties.name);
+            //layer.bindPopup(feature.properties.rssi);
           }
         }).addTo( mymap );
       });
