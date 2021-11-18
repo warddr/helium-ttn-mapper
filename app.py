@@ -40,12 +40,16 @@ def api_helium():
 def api_geojson():
   features = []
   cursor = mysql.connect().cursor()
-  cursor.execute("SELECT * FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id;");
+  cursor.execute("SELECT * FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id ORDER BY fcnt;");
+  lastfcnt = -1
   for points in cursor.fetchall():
-    mypoint = Point((points["longitude"], points["latitude"]))
-    features.append(Feature(geometry=mypoint))
+    if points["fcnt"] != lastfcnt: #only 1 point if received by multiple gateways
+      mypoint = Point((points["longitude"], points["latitude"]))
+      features.append(Feature(geometry=mypoint))
+      lastfcnt = points["fcnt"]
     myline = LineString([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
     features.append(Feature(geometry=myline))
+  print(teller)
   return FeatureCollection(features)
 
 @app.route("/highscore")
