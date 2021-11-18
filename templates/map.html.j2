@@ -1,0 +1,35 @@
+<html>
+<head>
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+          <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+</head>
+<div id="mapid" style="width: 800px; height: 700px;"></div>
+<script>
+
+	var mymap = L.map('mapid').setView([50.75, 4.5], 8);
+
+	L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '<a href="https://www.openstreetmap.org/fixthemap">Fix a problem with the map!</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	    subdomains: ['a','b','c']
+	}).addTo( mymap );
+
+
+$.getJSON('api/geojson', function (geojson) {
+  L.geoJson(geojson, {
+    onEachFeature: function (feature, layer) {
+      //layer.bindPopup(feature.properties.name);
+    }
+  }).addTo( mymap );
+});
+
+</script>
+
+</body>
+
+</html>

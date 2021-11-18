@@ -45,8 +45,9 @@ def api_geojson():
   for points in cursor.fetchall():
     mypoint = Point((points["longitude"], points["latitude"]))
     pointfeatures.append(Feature(geometry=mypoint))
-    mypointGW = Point((float(points["heliumhotspots.longitude"]), float(points["heliumhotspots.latitude"])))
-    linefeatures.append([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
+    #mypointGW = Point((float(points["heliumhotspots.longitude"]), float(points["heliumhotspots.latitude"])))
+    myline = LineString([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
+    pointfeatures.append(Feature(geometry=myline))
   #return MultiLineString(linefeatures)
   return FeatureCollection(pointfeatures)
 
@@ -56,6 +57,11 @@ def highscore():
   cursor.execute("SELECT dev_eui, max(distance) as distance FROM heliumtracker GROUP BY dev_eui ORDER BY distance;")
   
   return render_template('highscore.html.j2', scores = cursor.fetchall())
+
+@app.route("/map")
+def map():
+  return render_template('map.html.j2')
+
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)
