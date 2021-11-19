@@ -15,25 +15,63 @@
           attribution: '<a href="https://www.openstreetmap.org/fixthemap">Fix a problem with the map!</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           subdomains: ['a','b','c']
       }).addTo( mymap );
+      
 
-      $.getJSON('api/geojson', function (geojson) {
+      $.getJSON('{{lines}}', function (geojson) {
         L.geoJson(geojson, {
           style: function(feature) {
             if (feature.geometry.type == "LineString") {
               rssi = parseInt(feature.properties.rssi)
-              if (rssi > -100) {return {color: "#FF0000", "opacity": 0.3}};
-              if (rssi > -105) {return {color: "#FFA500", "opacity": 0.3}};
-              if (rssi > -110) {return {color: "#FFFF00", "opacity": 0.3}};
-              if (rssi > -115) {return {color: "#00FF00", "opacity": 0.3}};
-              if (rssi > -120) {return {color: "#00FFFF", "opacity": 0.3}};
-              return {color: "#0000FF", "opacity": 0.3};
-            }
+              if (rssi > -100) {return {color: "#FF0000", "opacity": 0.4, "weight": "2"}};
+              if (rssi > -105) {return {color: "#FFA500", "opacity": 0.6, "weight": "2"}};
+              if (rssi > -110) {return {color: "#FFFF00", "opacity": 0.6, "weight": "2"}};
+              if (rssi > -115) {return {color: "#00FF00", "opacity": 0.4, "weight": "2"}};
+              if (rssi > -120) {return {color: "#00FFFF", "opacity": 0.4, "weight": "2"}};
+              return {color: "#0000FF", "opacity": 0.4, "weight": "2"};
+            };
           },
 
           onEachFeature: function (feature, layer) {
             layer.bindPopup(feature.properties.rssi);
             layer.openPopup();
           }
+        }).addTo( mymap );
+      });
+
+      var redIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        iconSize: [13, 20],
+        iconAnchor: [6, 20],
+        popupAnchor: [1, -17],
+      });
+
+      var blueIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+        iconSize: [13, 20],
+        iconAnchor: [6, 20],
+        popupAnchor: [1, -17],
+      });
+
+      $.getJSON('{{hotspots}}', function (geojson) {
+        L.geoJson(geojson, {
+          pointToLayer: function(feature, latlng) {
+            return L.marker(latlng, {
+              icon: redIcon
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup("<b>HOTSPOT:</b> " +feature.properties.name);
+          }
+        }).addTo( mymap );
+      });
+
+      $.getJSON('{{points}}', function (geojson) {
+        L.geoJson(geojson, {
+          pointToLayer: function(feature, latlng) {
+            return L.marker(latlng, {
+              icon: blueIcon
+            });
+          },
         }).addTo( mymap );
       });
     </script>
