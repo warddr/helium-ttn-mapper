@@ -40,10 +40,12 @@ def api_helium():
 def api_geojson_hotspots():
   features = []
   cursor = mysql.connect().cursor()
-  cursor.execute("SELECT * FROM heliumhotspots;")
+  eui = request.args.get('dev_eui', default = "%", type = str) #not yet implemented
+  hotspot = request.args.get('hotspot', default = "%", type = str)
+  cursor.execute("SELECT * FROM heliumhotspots WHERE id LIKE %s;",(hotspot))
   for points in cursor.fetchall():
     mypoint = Point((points["longitude"], points["latitude"]))
-    features.append(Feature(geometry=mypoint, properties={"name": points["name"]}))
+    features.append(Feature(geometry=mypoint, properties={"name": points["name"], "id": points["id"]}))
   return FeatureCollection(features)
 
 @app.route("/api/geojson/points")
@@ -98,7 +100,7 @@ def highscore():
 def map():
   eui = request.args.get('dev_eui', default = "%25", type = str)
   hotspot = request.args.get('hotspot', default = "%25", type = str)
-  return render_template('map.html.j2', hotspots="api/geojson/hotspots", points="api/geojson/points?dev_eui="+eui+"&hotspot="+hotspot, lines="api/geojson/lines?dev_eui="+eui+"&hotspot="+hotspot)
+  return render_template('map.html.j2', hotspots="api/geojson/hotspots?dev_eui="+eui+"&hotspot="+hotspot, points="api/geojson/points?dev_eui="+eui+"&hotspot="+hotspot, lines="api/geojson/lines?dev_eui="+eui+"&hotspot="+hotspot)
 
 
 if __name__ == "__main__":

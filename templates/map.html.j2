@@ -60,7 +60,8 @@
             });
           },
           onEachFeature: function (feature, layer) {
-            layer.bindPopup("<b>HOTSPOT:</b> " +feature.properties.name);
+            layer.bindPopup("<b>HOTSPOT:</b> " +feature.properties.name +"<br />"+
+                            "<a href='?hotspot=" + feature.properties.id+"'>show hotspot coverage</a>");
           }
         }).addTo( mymap );
       });
