@@ -5,7 +5,7 @@
     </tr>
     {% for score in scores %}
     <tr>
-        <td>{{score["dev_eui"]}}</td>
+        <td><a href="map?dev_eui={{score['dev_eui']}}">{{score['dev_eui']}}</a></td>
         <td>{{score["distance"]}}</td>
     </tr>
     {% endfor %}
