@@ -3,6 +3,9 @@ from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 import geopy.distance
 from geojson import Feature, Point, FeatureCollection, LineString, MultiLineString
+import requests
+from requests.structures import CaseInsensitiveDict
+
 
 app = Flask(__name__, template_folder='templates')
 app.config.from_pyfile("app.cfg")
@@ -102,6 +105,15 @@ def map():
   hotspot = request.args.get('hotspot', default = "%25", type = str)
   return render_template('map.html.j2', hotspots="api/geojson/hotspots?dev_eui="+eui+"&hotspot="+hotspot, points="api/geojson/points?dev_eui="+eui+"&hotspot="+hotspot, lines="api/geojson/lines?dev_eui="+eui+"&hotspot="+hotspot)
 
+@app.route("/waarisward")
+def waarisward():
+  cursor = mysql.connect().cursor()
+  cursor.execute("SELECT *  FROM heliumtracker WHERE dev_eui = '6081F9D6C064A43C' ORDER BY timestamp  DESC LIMIT 1;")
+  point = cursor.fetchone()
+  headers = CaseInsensitiveDict()
+  headers["User-Agent"] = "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0"
+  resp = requests.get("https://nominatim.openstreetmap.org/reverse?format=json&lat="+str(point["latitude"])+"&lon="+str(point["longitude"])+"&zoom=27&addressdetails=1", headers=headers)
+  return (resp.json()["display_name"])
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)
