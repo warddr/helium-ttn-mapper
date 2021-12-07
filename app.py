@@ -73,7 +73,10 @@ def api_UA_lastlocation():
     headers["User-Agent"] = "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0"
     resp = requests.get("https://nominatim.openstreetmap.org/reverse?format=json&lat="+str(points["latitude"])+"&lon="+str(points["longitude"])+"&zoom=27&addressdetails=1", headers=headers)
     features.append(Feature(geometry=mypoint, properties={"last-timestamp": points["timestamp"], "adres": resp.json()["display_name"]}))
-  return FeatureCollection(features)
+   
+  resp = jsonify(FeatureCollection(features))
+  resp.headers['Access-Control-Allow-Origin'] = '*'
+  return resp
 
 @app.route("/api/geojson/hotspots")
 def api_geojson_hotspots():
