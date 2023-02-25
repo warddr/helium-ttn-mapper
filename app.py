@@ -57,18 +57,13 @@ def api_geojson_points():
   cursor = mysql.connect().cursor()
   eui = request.args.get('dev_eui', default = "%", type = str)
   hotspot = request.args.get('hotspot', default = "%", type = str)
-  cursor.execute("SELECT fcnt, round(heliumtracker.longitude,3) as longitude, round(heliumtracker.latitude,3) as latitude, heliumhotspots.longitude, heliumhotspots.latitude, rssi, distance, hotspot FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id WHERE dev_eui LIKE %s AND hotspot LIKE %s ORDER BY latitude, longitude, hotspot, rssi DESC;", (eui, hotspot))
+  cursor.execute("SELECT fcnt, round(heliumtracker.longitude,3) as longitude, round(heliumtracker.latitude,3) as latitude, heliumhotspots.longitude, heliumhotspots.latitude, max(rssi) as rssi, distance, hotspot FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id WHERE dev_eui LIKE %s AND hotspot LIKE %s GROUP BY longitude, latitude;", (eui, hotspot))
   lastlat = 0
   lastlong = 0
   lasthotspot = ""
   for points in cursor.fetchall():
-    if not((points["longitude"] == lastlong) and (points["latitude"] == lastlat)): #only 1 point if received by multiple gateways
-      mypoint = Point((points["longitude"], points["latitude"]))
-      features.append(Feature(geometry=mypoint))
-      lasthotspot = ""
-    lastlat = points["latitude"]
-    lasthotspot = points["hotspot"]
-    lastlong = points["longitude"]
+    mypoint = Point((points["longitude"], points["latitude"]))
+    features.append(Feature(geometry=mypoint))
   return FeatureCollection(features)
 
 @app.route("/api/geojson/lines")
