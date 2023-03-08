@@ -58,9 +58,6 @@ def api_geojson_points():
   eui = request.args.get('dev_eui', default = "%", type = str)
   hotspot = request.args.get('hotspot', default = "%", type = str)
   cursor.execute("SELECT fcnt, round(heliumtracker.longitude,3) as longitude, round(heliumtracker.latitude,3) as latitude, heliumhotspots.longitude, heliumhotspots.latitude, max(rssi) as rssi, distance, hotspot FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id WHERE dev_eui LIKE %s AND hotspot LIKE %s GROUP BY longitude, latitude;", (eui, hotspot))
-  lastlat = 0
-  lastlong = 0
-  lasthotspot = ""
   for points in cursor.fetchall():
     mypoint = Point((points["longitude"], points["latitude"]))
     features.append(Feature(geometry=mypoint))
@@ -73,9 +70,6 @@ def api_geojson_lines():
   eui = request.args.get('dev_eui', default = "%", type = str)
   hotspot = request.args.get('hotspot', default = "%", type = str)
   cursor.execute("SELECT fcnt, round(heliumtracker.longitude,3) as longitude, round(heliumtracker.latitude,3) as latitude, heliumhotspots.longitude, heliumhotspots.latitude, max(rssi) as rssi, distance, hotspot FROM heliumtracker INNER JOIN heliumhotspots ON heliumtracker.hotspot = heliumhotspots.id WHERE dev_eui LIKE %s AND hotspot LIKE %s GROUP BY latitude, longitude, hotspot;", (eui, hotspot))
-  lastlat = 0
-  lastlong = 0
-  lasthotspot = ""
   for points in cursor.fetchall():
       myline = LineString([(points["longitude"], points["latitude"]),(points["heliumhotspots.longitude"], points["heliumhotspots.latitude"])])
       features.append(Feature(geometry=myline, properties={"rssi": points["rssi"]}))
@@ -85,7 +79,6 @@ def api_geojson_lines():
 def highscore():
   cursor = mysql.get_db().cursor()
   cursor.execute("SELECT dev_eui, max(distance) as distance FROM heliumtracker GROUP BY dev_eui ORDER BY distance DESC;")
-  
   return render_template('highscore.html.j2', scores = cursor.fetchall())
 
 @app.route("/map")
