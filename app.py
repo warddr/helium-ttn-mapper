@@ -25,7 +25,7 @@ def api_helium():
     distance = geopy.distance.distance((hotspot["lat"], hotspot["long"]), (content["decoded"]["payload"]["latitude"],content["decoded"]["payload"]["longitude"])).km
     cursor = mysql.get_db().cursor()
     sql = "INSERT INTO heliumtracker (dev_eui, fcnt, frequency, hotspot, rssi, snr, spreading, payload, latitude, longitude, sats, distance) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    val = (content["dev_eui"], content["fcnt"], hotspot["frequency"], hotspot["id"], hotspot["rssi"], hotspot["snr"],hotspot["spreading"], content["payload"], content["decoded"]["payload"]["latitude"],content["decoded"]["payload"]["longitude"],content["decoded"]["payload"]["sats"],distance)
+    val = (content["dev_eui"], content["fcnt"], hotspot["frequency"], hotspot["id"], hotspot["rssi"], hotspot["snr"],hotspot["spreading"], content["payload"], content["decoded"]["payload"]["latitude"],content["decoded"]["payload"]["longitude"],0,distance)
     cursor.execute(sql, val)
     mysql.get_db().commit()
 
@@ -45,7 +45,7 @@ def api_geojson_hotspots():
   cursor = mysql.connect().cursor()
   eui = request.args.get('dev_eui', default = "%", type = str) #not yet implemented
   hotspot = request.args.get('hotspot', default = "%", type = str)
-  cursor.execute("SELECT * FROM heliumhotspots WHERE id LIKE %s;",(hotspot))
+  cursor.execute("SELECT distinct(h.id) as id, h.name as name, h.longitude as longitude, h.latitude as latitude FROM heliumhotspots h, heliumtracker t WHERE h.id LIKE %s AND h.id = t.hotspot AND t.dev_eui LIKE %s;",(hotspot,eui))
   for points in cursor.fetchall():
     mypoint = Point((points["longitude"], points["latitude"]))
     features.append(Feature(geometry=mypoint, properties={"name": points["name"], "id": points["id"]}))
